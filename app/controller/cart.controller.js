@@ -6,7 +6,6 @@ const Item = db.item;
 exports.addItem = async (req, res) => {
     try {
         const { itemId } = req.body;
-        console.log(itemId,"Item ID");
         if(itemId){
             //check if an unpurchased cart is present for the user
             const cart = await Cart.findOne({
@@ -15,22 +14,28 @@ exports.addItem = async (req, res) => {
                     is_purchased: false
                 }
             });
-            console.log("found in db",cart);
             //if not present create a new cart for user
             if(!cart){
                 const cart = await Cart.create({
                     is_purchased: false
                 });
                 cart.setUser(req.user.id);
-                console.log("created in db",cart);
-            }
-
-            //add itemId to the existing cart also the userId to which the cart belongs --ie in the cartItems join table
-            console.log("here",cart);
-            if(cart){
+                cart.save();
                 cart.addItem(itemId);
-                return res.status(200).send("Item added successfully to cart");
+                cart.save();
+                return res.status(200).send(cart);
             }
+            else{
+
+                cart.addItem(itemId);
+                cart.save();
+                return res.status(200).send(cart);
+            }
+            //add itemId to the existing cart also the userId to which the cart belongs --ie in the cartItems join table
+            // if(cart){
+            //     cart.addItem(itemId);
+            //     return res.status(200).send(cart);
+            // }
         }
         else{
             return res.status(400).send("Invalid input");
@@ -42,7 +47,6 @@ exports.addItem = async (req, res) => {
 
 exports.complete = async (req,res) => {
     const { cartId } = req.params;
-    console.log(cartId,"cartId");
     if(cartId){
         try {
             //fetch the cart for the incoming cart id from db
@@ -51,7 +55,6 @@ exports.complete = async (req,res) => {
                     id: cartId
                 }
             });
-            console.log(cart,"cart");
             if(cart){
                 //make the status to purchased
                 cart.is_purchased = true;

@@ -1,18 +1,20 @@
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
+var cors = require('cors');
 app.use(bodyParser.json());
+app.use(cors());
 
 // include database config file
 const db = require("./app/model");
 
-// force: true will drop the table if it already exists
-// db.sequelize.sync({ force: true }).then(() => {
-//   console.log("Drop and Resync with { force: true }");
+//force: true will drop the table if it already exists
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Drop and Resync with { force: true }");
+})
+// db.sequelize.sync().then(()=> {
+//     console.log("sync");
 // });
-db.sequelize.sync().then(()=> {
-    console.log("sync");
-});
 
 // include application routes
 require("./app/route/user.route.js")(app);

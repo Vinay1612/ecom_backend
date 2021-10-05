@@ -69,7 +69,6 @@ exports.createToken = async (req, res) => {
             );
             // save user token in db
             user.token = token;
-            console.log(token);
             await user.save();
       
             // user
